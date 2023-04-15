@@ -1,0 +1,28 @@
+.App {
+  height: 100vh;
+  width: auto;
+  /* display: flex;
+  flex-direction: column;
+  align-items: center; */
+  padding: 2em;
+}
+
+.App-header-wrapper{
+  margin: 1em;
+  padding: 1em;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.App-header{
+  color: black;
+  font: bold;
+}
+
+/* .form-wrapper {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+} */
