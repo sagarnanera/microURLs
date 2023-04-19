@@ -9,28 +9,29 @@ export default function Test() {
   const [shorten_URL, setShorten_URL] = useState("");
   const [button, setButton] = useState(true);
 
-  const onChange = value => {
-    console.log("Captcha value:", value);
-  };
-
   const recaptchaRef = useRef(0);
 
   const handleSubmit = async e => {
     e.preventDefault();
+    try {
+      const captchaToken = await recaptchaRef.current.executeAsync();
+      recaptchaRef.current.reset();
 
-    const captchaToken = await recaptchaRef.current.executeAsync();
-    recaptchaRef.current.reset();
+      console.log("host : " + process.env.REACT_APP_HOST);
 
-    const res = await axios.post("http://localhost:5100/add", {
-      URL: data,
-      captchaToken: captchaToken
-    });
+      const res = await axios.post("http://" + process.env.REACT_APP_HOST + "/add", {
+        URL: data,
+        captchaToken: captchaToken
+      });
 
-    if (res.data.status === 200) {
-      setShorten_URL(res.data.shorten_URL);
-      setButton(false);
-    } else {
-      console.log("some error occurred...........");
+      if (res.data.status === 200) {
+        setShorten_URL(res.data.shorten_URL);
+        setButton(false);
+      } else {
+        console.log("some error occurred...........");
+      }
+    } catch (error) {
+      console.log("Unknown error ocurred... : " + error.message);
     }
   };
 
@@ -67,13 +68,14 @@ export default function Test() {
           </div>
           <input
             className="m-1"
-            type="text"
+            type="url"
             name="original-url"
             id="original-url"
             value={data}
             onChange={e => {
               setData(e.target.value);
             }}
+            required
           />
         </div>
         <div className="my-2">

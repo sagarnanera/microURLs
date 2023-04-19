@@ -9,10 +9,24 @@ const Urlschema = new mongoose.Schema({
         type: String,
         required: true
     },
-    clicks: {
-        type: Number,
-        required: true,
-        default: 0
+    userIP: {
+        type: String,
+        required: true
+    },
+    locationInfo: {
+        country: {
+            type: String
+        },
+        region: {
+            type: String
+        },
+        city: {
+            type: String
+        },
+        coordinates: {
+            type: [Number],
+            index: "2dsphere"
+        }
     },
     date: {
         type: Date,

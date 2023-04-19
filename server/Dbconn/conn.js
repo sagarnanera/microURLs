@@ -1,15 +1,15 @@
 const mongoose = require("mongoose");
 mongoose.connect(
-    "mongodb://localhost:27017/",
+    process.env.MONGODB_URI_LOCAL,
     {
-        dbName: "URL-shortner-db",
+        dbName: "microURLs-db",
         useNewUrlParser: true,
         useUnifiedTopology: true,
         autoIndex: true,
     },
     (err) =>
         err ? console.log(err) : console.log(
-            "Connected to URL-shortner-db database")
+            "Connected to microURLs database")
 );
 
 const conn = mongoose.connection;

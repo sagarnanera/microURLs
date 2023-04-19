@@ -8,7 +8,8 @@ const conn = require('./Dbconn/conn');
 
 // const passport = require("passport");
 
-const PORT = 5100;
+const PORT = process.env.PORT | 5100;
+const web_host = process.env.WEB_HOST;
 app.use(express.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 
@@ -17,5 +18,5 @@ app.use(bodyParser.urlencoded({ extended: false }));
 
 app.listen(PORT, (err) => {
     if (err) console.log(err);
-    console.log(`server started on http://localhost:${PORT}`);
+    console.log(`server started on http://${web_host}:${PORT}`);
 })
