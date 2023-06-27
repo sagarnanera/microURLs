@@ -1,19 +1,24 @@
-import './App.css';
-import MainForm from './components/MainForm';
+import './styles/App.css';
 import { useState, useEffect } from 'react';
-import Test from './components/Test';
+
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 import axios from 'axios';
+import IndexPage from './pages/IndexPage';
+
+import { Provider } from 'react-redux';
+import store from './store/store';
 
 function App() {
 
   const [data, setData] = useState('');
 
   useEffect(() => {
-    axios.get('http://localhost:5100/')
+    axios.get(`http://${process.env.REACT_APP_HOST}`)
       .then(function (response) {
         setData(response.data);
-        // console.log(response.data);
+        console.log(response.data);
       })
       .catch(function (error) {
         console.log(error);
@@ -22,17 +27,14 @@ function App() {
 
 
   return (
-    <div className="App">
-      <div className='App-header-wrapper'>
-        <h1 className='App-header'>URL Shortner App</h1>
-      </div>
-      {/* <div className='form-wrapper'>
-        <MainForm slug={data} />
-      </div> */}
-
-      <Test/>
-
-    </div>
+    <>
+      <Provider store={store}>
+        <div className="App">
+          <IndexPage />
+        </div>
+        <ToastContainer style={{ width: "400px" }} />
+      </Provider>
+    </>
   );
 }
 

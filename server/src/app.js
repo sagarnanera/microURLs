@@ -42,49 +42,77 @@ app.get("/", getGeoLocation, (req, res) => {
 });
 
 app.post("/add", getGeoLocation, async (req, res) => {
-    const slug = randomstring.generate(8);
-    console.log("Request IP : ", req.ipAddress);
 
-    const { captchaToken } = req.body;
+    try {
 
-    const CaptchaRes = await axios.post(
-        `https://www.google.com/recaptcha/api/siteverify?secret=${recaptchaKey}&response=${captchaToken}`
-    );
+        var customSlug;
 
-    if (!CaptchaRes.data.success) {
-        console.log("BOT!!!", req.ip);
-        res.json({ status: 403, msg: "Forbidden" });
-        return;
-    }
+        if (req.body.customSlug) {
+            customSlug = req.body.customSlug;
 
-    console.log(CaptchaRes.data);
+            const result = await URL.findOne({ slug: customSlug });
 
-    const result = await URL.findOne({ Original_URL: req.body.URL });
+            if (result) {
+                console.log(result);
+                res.status(409).json({
+                    success: true,
+                    msg: "Slug is already taken"
+                });
+                return
+            }
 
-    if (result) {
-        res.json({
-            status: 200,
-            shorten_URL: "http://" + hostname + `:${port}/` + result.Shorten_URL_slug
-        });
-        console.log(result);
-    } else {
-        const newrecord = new URL({
-            Original_URL: req.body.URL,
-            Shorten_URL_slug: slug,
-            userIP: req.ipAddress,
-            locationInfo: req.location
-        });
-
-        const data = await newrecord.save();
-
-        if (data) {
-            res.json({
-                status: 200,
-                shorten_URL: "http://" + hostname + `:${port}/` + data.Shorten_URL_slug
-            });
         } else {
-            res.json({ status: 500, msg: "Internal server error" });
+            customSlug = randomstring.generate(8);
         }
+
+        console.log("Request IP : ", req.ipAddress);
+
+        const { captchaToken } = req.body;
+
+        const CaptchaRes = await axios.post(
+            `https://www.google.com/recaptcha/api/siteverify?secret=${recaptchaKey}&response=${captchaToken}`
+        );
+
+        if (!CaptchaRes.data.success) {
+            console.log("BOT!!!", req.ip);
+            res.status(403).json({ success: false, msg: "Forbidden" });
+            return;
+        }
+
+        console.log(CaptchaRes.data);
+
+        const result = await URL.findOne({ Original_URL: req.body.URL });
+
+        if (result) {
+            res.status(200).json({
+                success: true,
+                Original_URL: result.Original_URL,
+                shorten_URL: "http://" + hostname + `:${port}/` + result.Shorten_URL_slug
+            });
+            console.log(result);
+        } else {
+
+            const newrecord = new URL({
+                Original_URL: req.body.URL,
+                Shorten_URL_slug: customSlug,
+                userIP: req.ipAddress,
+                locationInfo: req.location
+            });
+
+            await newrecord.save();
+
+            res.status(200).json({
+                success: true,
+                Original_URL: newrecord.Original_URL,
+                shorten_URL: "http://" + hostname + `:${port}/` + newrecord.Shorten_URL_slug
+            });
+        }
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            msg: "Internal server error",
+            error: error.message
+        });
     }
 });
 

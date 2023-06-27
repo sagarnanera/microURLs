@@ -4,6 +4,8 @@ const getGeoLocation = async (req, res, next) => {
     try {
         let ip = req.headers["x-forwarded-for"] || req.connection.remoteAddress;
 
+        console.log("headers >>>>" + req.connection.remoteAddress + "  >> " + ip);
+
         if (ip.startsWith("::ffff:")) {
             req.ipAddress = ip.slice(7);
         }
@@ -15,7 +17,7 @@ const getGeoLocation = async (req, res, next) => {
         );
         const data = response.data;
 
-        console.log(response.data);
+        // console.log(response.data);  
 
         const location = {
             country: data.country,
