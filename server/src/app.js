@@ -36,71 +36,73 @@ app.get("/", getGeoLocation, (req, res) => {
         .status(200)
         .json({
             test_slug: test_slug,
-            req_ip: req.ip,
+            req_ip: req.ipAddress,
             locationInfo: req.location
         });
 });
 
-app.post("/add", captchaVerify, getGeoLocation, async (req, res) => {
+app.post("/add",
+    // captchaVerify,
+    getGeoLocation, async (req, res) => {
 
-    try {
+        try {
 
-        var customSlug;
+            var customSlug;
 
-        if (req.body.customSlug && req.body.customSlug !== "") {
-            customSlug = req.body.customSlug;
+            if (req.body.customSlug && req.body.customSlug !== "") {
+                customSlug = req.body.customSlug;
 
-            const result = await URL.findOne({ Shorten_URL_slug: customSlug });
+                const result = await URL.findOne({ Shorten_URL_slug: customSlug });
 
-            if (result) {
-                console.log(result);
-                res.status(409).json({
-                    success: true,
-                    msg: "Slug is already taken"
-                });
-                return
+                if (result) {
+                    console.log(result);
+                    res.status(409).json({
+                        success: true,
+                        msg: "Slug is already taken"
+                    });
+                    return
+                }
+
+            } else {
+                customSlug = randomstring.generate(8);
             }
 
-        } else {
-            customSlug = randomstring.generate(8);
+            console.log("Request IP : ", req.ipAddress);
+
+            const result = await URL.findOne({ Original_URL: req.body.URL });
+
+            if (result) {
+                res.status(200).json({
+                    success: true,
+                    Original_URL: result.Original_URL,
+                    shorten_URL: "http://" + hostname + `:${port}/` + result.Shorten_URL_slug
+                });
+                console.log(result);
+            } else {
+
+                const newrecord = new URL({
+                    Original_URL: req.body.URL,
+                    Shorten_URL_slug: customSlug,
+                    userIP: req.ipAddress,
+                    locationInfo: req.location
+                });
+
+                await newrecord.save();
+
+                res.status(200).json({
+                    success: true,
+                    Original_URL: newrecord.Original_URL,
+                    shorten_URL: "http://" + hostname + `:${port}/` + newrecord.Shorten_URL_slug
+                });
+            }
+        } catch (error) {
+            res.status(500).json({
+                success: false,
+                msg: "Internal server error",
+                error: error.message
+            });
         }
-
-        console.log("Request IP : ", req.ip);
-
-        const result = await URL.findOne({ Original_URL: req.body.URL });
-
-        if (result) {
-            res.status(200).json({
-                success: true,
-                Original_URL: result.Original_URL,
-                shorten_URL: "http://" + hostname + `:${port}/` + result.Shorten_URL_slug
-            });
-            console.log(result);
-        } else {
-
-            const newrecord = new URL({
-                Original_URL: req.body.URL,
-                Shorten_URL_slug: customSlug,
-                userIP: req.ip,
-                locationInfo: req.location
-            });
-
-            await newrecord.save();
-
-            res.status(200).json({
-                success: true,
-                Original_URL: newrecord.Original_URL,
-                shorten_URL: "http://" + hostname + `:${port}/` + newrecord.Shorten_URL_slug
-            });
-        }
-    } catch (error) {
-        res.status(500).json({
-            success: false,
-            msg: "Internal server error",
-            error: error.message
-        });
-    }
-});
+    });
 
 app.post("/add-custom-slug", captchaVerify, async (req, res) => {
     const { customSlug, URL } = req.body;
@@ -158,7 +160,7 @@ app.get("/:slug", getGeoLocation, async (req, res) => {
         const newClick = new Click({
             URL_id: shorten_URL._id,
             isBotClick: isbot(userAgent),
-            clientIP: req.ip,
+            clientIP: req.ipAddress,
             locationInfo: req.location
         });
 
@@ -168,7 +170,9 @@ app.get("/:slug", getGeoLocation, async (req, res) => {
         return;
     } catch (error) {
         console.log("error in redirecting : " + error);
-        res.status(500).json({ msg: "Internal server error.." });
+        res.status(500).json({
+            success: false, msg: "Internal server error.."
+        });
     }
 });
 

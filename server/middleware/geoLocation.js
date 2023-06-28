@@ -2,18 +2,18 @@ const axios = require("axios");
 
 const getGeoLocation = async (req, res, next) => {
     try {
-        let ip = req.headers["x-forwarded-for"] || req.connection.remoteAddress;
+        req.ipAddress = req.headers["x-forwarded-for"] || req.connection.remoteAddress;
 
-        console.log("headers >>>>" + req.connection.remoteAddress + "  >> " + ip);
+        console.log("headers >>>>" + req.connection.remoteAddress + "  >> " + req.ipAddress);
 
-        if (ip.startsWith("::ffff:")) {
-            req.ip = ip.slice(7);
+        if (req.ipAddress.startsWith("::ffff:")) {
+            req.ipAddress = req.ipAddress.slice(7);
         }
 
-        console.log("client ip : " + req.ip);
+        console.log("client ip : " + req.ipAddress);
 
         const response = await axios.get(
-            `https://get.geojs.io/v1/ip/geo/${req.ip}.json`
+            `https://get.geojs.io/v1/ip/geo/${req.ipAddress}.json`
         );
         const data = response.data;
 
@@ -35,7 +35,9 @@ const getGeoLocation = async (req, res, next) => {
         next();
     } catch (error) {
         console.error("error in geolocation middleware.....");
-        res.json({ status: 500, msg: "Internal server error...." });
+        res.status(500).json({
+            success: false, msg: "Internal server error...."
+        });
         return;
     }
 };
