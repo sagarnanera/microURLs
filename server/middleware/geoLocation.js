@@ -7,13 +7,13 @@ const getGeoLocation = async (req, res, next) => {
         console.log("headers >>>>" + req.connection.remoteAddress + "  >> " + ip);
 
         if (ip.startsWith("::ffff:")) {
-            req.ipAddress = ip.slice(7);
+            req.ip = ip.slice(7);
         }
 
-        console.log("client ip : " + req.ipAddress);
+        console.log("client ip : " + req.ip);
 
         const response = await axios.get(
-            `https://get.geojs.io/v1/ip/geo/${req.ipAddress}.json`
+            `https://get.geojs.io/v1/ip/geo/${req.ip}.json`
         );
         const data = response.data;
 

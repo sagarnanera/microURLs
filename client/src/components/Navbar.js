@@ -8,7 +8,7 @@ export default function Navbar({ fixed }) {
     return (
         <>
             <nav className="relative flex flex-wrap items-center justify-between px-2 py-3 bg-gradient-to-r from-teal-400 to-purple-600 mb-3">
-                <div className="container px-4 mx-auto flex flex-wrap items-center justify-between">
+                <div className="container px-4 pr-0 mx-auto flex flex-wrap items-center justify-between">
                     <div className="w-full relative flex justify-between md:w-auto md:static md:block md:justify-start">
                         <a
                             className="text-2xl font-bold leading-relaxed inline-block mr-4 py-1 whitespace-nowrap text-white"

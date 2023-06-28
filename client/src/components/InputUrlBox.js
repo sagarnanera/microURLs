@@ -15,10 +15,11 @@ const InputUrlBox = ({ setShorten_URL }) => {
   const [customSlug, setCustomSlug] = useState("");
 
   const recaptchaRef = useRef(0);
-  // const dispatch = useDispatch();
 
   const handleSubmit = async e => {
     e.preventDefault();
+
+    console.log("clicked on submit...");
 
     if (originalUrl === "" || !originalUrl) {
 
@@ -34,49 +35,27 @@ const InputUrlBox = ({ setShorten_URL }) => {
       const captchaToken = await recaptchaRef.current.executeAsync();
       recaptchaRef.current.reset();
 
-      console.log("host : " + process.env.REACT_APP_HOST);
+      console.log("host : " + process.env.REACT_APP_HOST_LOCAL);
 
-      const res = await axios.post("http://" + process.env.REACT_APP_HOST + "/add", {
+      const res = await axios.post("http://" + process.env.REACT_APP_HOST_LOCAL + "/add", {
         URL: originalUrl,
         customSlug: customSlug,
         captchaToken: captchaToken
       });
 
-      if (res.data.status === 200) {
+      if (res.status === 200) {
         console.log(res.data);
         setShorten_URL(res.data);
       } else {
         console.log("some error occurred...........");
       }
     } catch (error) {
-      console.log("Unknown error ocurred... : " + error.message);
+      console.log("Unknown error ocurred... : " + error);
     }
   };
 
-  // const handleclick = () => {
-  //   window.navigator.clipboard.writeText(shorten_URL).then(() => {
-  //     alert("Shorten url has been copied to your clipboard.");
-  //   });
-  // };
-
-  // const handleshare = e => {
-  //   if ("share" in navigator) {
-  //     navigator
-  //       .share({
-  //         title: "Share Shorten URL With Someone",
-  //         url: shorten_URL
-  //       })
-  //       .then(() => {
-  //         console.log("Shared SuccessFully");
-  //       })
-  //       .catch(console.error);
-  //   } else {
-  //     alert(`Sorry this browser doesn't have native share`);
-  //   }
-  // };
-
   return (
-    <div className="flex flex-col bg-white p-2 md:p-4 m-2 rounded" style={{ maxWidth: "600px" }}>
+    <div className="flex flex-col bg-white p-2 md:p-4 m-2 rounded w-auto md:w-[600px]">
       <div>
         <div>
           <div className="flex flex-col mx-2">
@@ -106,8 +85,8 @@ const InputUrlBox = ({ setShorten_URL }) => {
               Add custom Slug
             </label>
           </div>
-          <div className="w-full flex">
-            <div className="w-1/2 mx-2 mr-1">
+          <div className="w-full flex flex-col md:flex-row">
+            <div className="md:w-1/2 m-2 md:mr-1">
               <input
                 className="w-full border rounded text-lg  md:text-xl p-2 outline-none"
                 type="text"
@@ -117,7 +96,7 @@ const InputUrlBox = ({ setShorten_URL }) => {
                 value={`http://${process.env.REACT_APP_HOST}/`}
               />
             </div>
-            <div className="w-1/2 mx-2 ml-1">
+            <div className="md:w-1/2 m-2 md:ml-1">
               <input
                 className="w-full border rounded text-lg  md:text-xl p-2"
                 type="text"

@@ -36,21 +36,21 @@ app.get("/", getGeoLocation, (req, res) => {
         .status(200)
         .json({
             test_slug: test_slug,
-            req_ip: req.ipAddress,
+            req_ip: req.ip,
             locationInfo: req.location
         });
 });
 
-app.post("/add", getGeoLocation, async (req, res) => {
+app.post("/add", captchaVerify, getGeoLocation, async (req, res) => {
 
     try {
 
         var customSlug;
 
-        if (req.body.customSlug) {
+        if (req.body.customSlug && req.body.customSlug !== "") {
             customSlug = req.body.customSlug;
 
-            const result = await URL.findOne({ slug: customSlug });
+            const result = await URL.findOne({ Shorten_URL_slug: customSlug });
 
             if (result) {
                 console.log(result);
@@ -65,21 +65,7 @@ app.post("/add", getGeoLocation, async (req, res) => {
             customSlug = randomstring.generate(8);
         }
 
-        console.log("Request IP : ", req.ipAddress);
-
-        const { captchaToken } = req.body;
-
-        const CaptchaRes = await axios.post(
-            `https://www.google.com/recaptcha/api/siteverify?secret=${recaptchaKey}&response=${captchaToken}`
-        );
-
-        if (!CaptchaRes.data.success) {
-            console.log("BOT!!!", req.ip);
-            res.status(403).json({ success: false, msg: "Forbidden" });
-            return;
-        }
-
-        console.log(CaptchaRes.data);
+        console.log("Request IP : ", req.ip);
 
         const result = await URL.findOne({ Original_URL: req.body.URL });
 
@@ -95,7 +81,7 @@ app.post("/add", getGeoLocation, async (req, res) => {
             const newrecord = new URL({
                 Original_URL: req.body.URL,
                 Shorten_URL_slug: customSlug,
-                userIP: req.ipAddress,
+                userIP: req.ip,
                 locationInfo: req.location
             });
 
@@ -172,7 +158,7 @@ app.get("/:slug", getGeoLocation, async (req, res) => {
         const newClick = new Click({
             URL_id: shorten_URL._id,
             isBotClick: isbot(userAgent),
-            clientIP: req.ipAddress,
+            clientIP: req.ip,
             locationInfo: req.location
         });
 
