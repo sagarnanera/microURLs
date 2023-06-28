@@ -2,13 +2,13 @@ const axios = require("axios");
 
 const getGeoLocation = async (req, res, next) => {
     try {
-        // let ip = req.headers["x-forwarded-for"] || req.connection.remoteAddress;
+        let ip = req.headers["x-forwarded-for"] || req.connection.remoteAddress;
 
-        // console.log("headers >>>>" + req.connection.remoteAddress + "  >> " + ip);
+        console.log("headers >>>>" + req.connection.remoteAddress + "  >> " + ip);
 
-        // if (ip.startsWith("::ffff:")) {
-        //     req.ip = ip.slice(7);
-        // }
+        if (ip.startsWith("::ffff:")) {
+            req.ip = ip.slice(7);
+        }
 
         console.log("client ip : " + req.ip);
 
