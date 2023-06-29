@@ -10,6 +10,8 @@ const getGeoLocation = async (req, res, next) => {
             req.ipAddress = req.ipAddress.slice(7);
         }
 
+        req.ipAddress.split(",")[0].trim();
+
         console.log("client ip : " + req.ipAddress);
 
         const response = await axios.get(
