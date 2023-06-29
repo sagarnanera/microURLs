@@ -1,6 +1,6 @@
 const mongoose = require("mongoose");
 mongoose.connect(
-    process.env.MONGODB_URI_LOCAL,
+    process.env.MONGODB_URI,
     {
         dbName: "microURLs-db",
         useNewUrlParser: true,
